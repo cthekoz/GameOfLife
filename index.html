@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>HTML5 / Javascript study</title>
+        <script src="scripts/main.js" type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="styles/main.css"/>
+    </head>
+    <body onload="onLoad()" onresize="onResize()">
+        <h1>Game of Life</h1>
+        <h2>
+            <p>
+                <a href="https://en.wikipedia.org/wiki/Conway's_Game_of_Life">"The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway in 1970." -Wikipedia</a>
+            </p>
+        </h2>
+        <div class="startStopButtons">
+            <button class="myButton" type="button" onclick="buttonStartClick()">Start</button> 
+            <button class="myButton" type="button" onClick="buttonStopClick()">Stop</button>
+        </div> 
+        <div class="outputOver">
+            <span class="currentCellCount" name="totalcells" id="totalcells"></output>       
+        </div>
+        <div>
+            <canvas id="mycanvas" ></canvas>        
+        </div>
+    </body>
+</html>
+
