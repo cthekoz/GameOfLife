@@ -1,3 +1,4 @@
+/* I'm putting in a header comment to check out GitHub integration. */
 
 var canvasProperties;
 var universe = [];
