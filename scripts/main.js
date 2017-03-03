@@ -1,9 +1,11 @@
 /* I'm putting in a header comment to check out GitHub integration. */
-/* Now testing LP integration.*/
+/* 3-3-2017 - added wheel zoom. */
 
 var canvasProperties;
+var gridProperties;
 var universe = [];
 var stop = false;
+var clipSave;
 
 var neighborOffsets = [
     [-1, 0],
@@ -18,24 +20,65 @@ var neighborOffsets = [
 
 function canvasPropertiesPrint(canvasProperties) {
     "use strict";
-    console.log("cellSize: " + canvasProperties.cellSize
-                    + " " + "width: " + canvasProperties.width
-                    + " " + "height: " + canvasProperties.height
-                    + " " + "xCells: " + canvasProperties.xCells
-                    + " " + "yCells: " + canvasProperties.yCells
+    console.log("width: " + canvasProperties.width
+                    + " " + "height: " + canvasProperties.height             
                     );
+}
+
+/* Resizes the canvas as percentages of window width and height.*/
+function resizeCanvasByWindowSize() {
+    "use strict";
+    
+    var canvas = document.getElementById("mycanvas");
+    // Reducing size to make room for other elements, e.g., buttons. Not sure this is how it ought to be done.
+    canvas.height = Math.floor(window.innerHeight * .7); // 70% height
+    canvas.width = Math.floor(window.innerWidth * .8);  // 80% width
+
+    var context = canvas.getContext("2d");
+
+    return {
+        canvas: canvas,
+        context: context,
+        width: canvas.width,
+        height: canvas.height
+    }
+}
+
+/* Resizes the canvas by the cell size, assuming all cells are squares. */
+function resizeCanvasByCellSize(canvas, cellSize) {
+    "use strict";
+    
+    var cellSize = cellSize;
+    var cellCounts = getCellCounts(canvas, cellSize);
+    
+    return {
+        xCells: cellCounts.xCells,
+        yCells: cellCounts.yCells,
+        cellSize: cellSize
+    }
+}
+
+function getCellCounts(canvas, cellSize) {
+    "use strict";
+
+    var xCells = Math.floor(canvas.width / cellSize);
+    var yCells = Math.floor(canvas.height / cellSize);
+
+    return {
+        xCells: xCells,
+        yCells: yCells
+    }
 }
 
 function onLoad() {
     "use strict";
-    console.log("onLoad()");
     
     var canvas = document.getElementById("mycanvas");
-    canvas.height = Math.floor(window.innerHeight * .7);
-    canvas.width = Math.floor(window.innerWidth * .8); 
-    canvasProperties = resizeCanvas(canvas, 20);
-    //drawFillCanvas(canvas, 'gold', canvasProperties);
-    drawGridCanvas('black', canvasProperties);
+    canvasProperties = resizeCanvasByWindowSize(canvas);
+    var cellSize = 20;
+    gridProperties = resizeCanvasByCellSize(canvas, cellSize);
+
+    drawGridCanvas('black', canvasProperties, gridProperties);
     
     var totalcells = document.getElementById("totalcells");
     totalcells.textContent  = universe.length;
@@ -43,91 +86,88 @@ function onLoad() {
 
 function onResize() {
     "use strict";
-    console.log("onResize()");
 
-    var canvas = document.getElementById("mycanvas");
-    canvas.height = Math.floor(window.innerHeight * .7);
-    canvas.width = Math.floor(window.innerWidth * .8); 
-    canvasProperties = resizeCanvas(canvas, canvasProperties.cellSize);
+    canvasProperties = resizeCanvasByWindowSize();
 
-    //drawFillCanvas(canvas, 'gold', canvasProperties);
-    drawGridCanvas('black', canvasProperties);
-}
-
-function resizeCanvas(canvas, cellSize) {
-    "use strict";
-    var cellSize = cellSize;
-/*    canvas.height = Math.floor(document.body.clientHeight * .8);
-    canvas.width = Math.floor(document.body.clientWidth * .8); */
+    var canvas = canvasProperties.canvas;
     
-    var yCells = Math.floor(canvas.height / cellSize);   
-    var xCells = Math.floor(canvas.width / cellSize);
-    canvas.height = yCells * cellSize + 1;
-    canvas.width = xCells * cellSize + 1;
+    var cellSize = gridProperties.cellSize;
+    gridProperties = resizeCanvasByCellSize(canvas, cellSize);
 
-    var context = canvas.getContext("2d");
-    // If I use translate, my grid draws incorrectly, i.e., unattached endlines. Perplexing. -ck
-    //context.translate(window.innerWidth * .1, window.innerHeight * .1);
-
-    return {
-        cellSize: cellSize,
-        width: canvas.width,
-        height: canvas.height,
-        xCells: xCells,
-        yCells: yCells,
-        canvas: canvas,
-        context: context
-    }
+    drawGridCanvas('black', canvasProperties, gridProperties);
+    
+    var totalcells = document.getElementById("totalcells");
+    totalcells.textContent  = universe.length;
 }
 
 function drawFillCanvas(canvas, color, canvasProperties) {
     "use strict";
-    var context = canvasProperties.context;
+    var context = canvasProperties.canvas.getContext("2d");
     context.rect(0, 0, canvas.width, canvas.height);
     context.fillStyle = color;
     context.fill();
 }
 
-function drawGridCanvas(color, canvasProperties) {
+function drawGridCanvas(color, canvasProperties, gridProperties) {
     "use strict";
     
-    canvasPropertiesPrint(canvasProperties);
+    var context = canvasProperties.canvas.getContext("2d");
+    var cellSize = gridProperties.cellSize;
+    var xCells = gridProperties.xCells;
+    var yCells = gridProperties.yCells;
 
-    var context = canvasProperties.context;
+    context.save();
+    context.beginPath();
+    context.rect(0, 0, cellSize * xCells + 1, cellSize * yCells + 1);
+    context.clip();
 
-    for (var x = 0; x <= canvasProperties.cellSize * canvasProperties.xCells + canvasProperties.cellSize + 1; x += canvasProperties.cellSize) {        
+    for (var x = 0; x <= cellSize * xCells + cellSize + 1; x += cellSize) {        
         context.moveTo(x, 0);
-        context.lineTo(x, canvasProperties.yCells * canvasProperties.cellSize);
+        context.lineTo(x, yCells * cellSize);
     }
-    for (var y = 0; y <= canvasProperties.cellSize * canvasProperties.yCells + canvasProperties.cellSize + 1; y += canvasProperties.cellSize) {        
+    for (var y = 0; y <= cellSize * yCells + cellSize + 1; y += cellSize) {        
         context.moveTo(0, y);
-        context.lineTo(canvasProperties.xCells * canvasProperties.cellSize, y);
+        context.lineTo(xCells * cellSize, y);
     }
+    context.closePath();
     context.lineWidth = 1;
     context.strokeStyle = color;
     context.stroke();
+    context.restore();
 }
 
 function drawRectangle(canvasProperties, x, y, width, height, color) {
     "use strict";
-    var context = canvasProperties.context;
+    var context = canvasProperties.canvas.getContext("2d");
 
     context.beginPath();
-    context.rect(x + 1, y + 1, width - 2, height - 2);
+    context.rect(x, y, width, height);
     context.fillStyle = color;
     context.fill();
 }
 
-function drawUniverse(universe, color) {
-    "use strict";
+function drawUniverse(universe, canvasProperties, gridProperties, color) {
+    "use strict";    
+    
+    var context = canvasProperties.canvas.getContext("2d");
+    var cellSize = gridProperties.cellSize;
+    var xCells = gridProperties.xCells;
+    var yCells = gridProperties.yCells;
+
+    context.save();
+    context.beginPath();
+    context.rect(0, 0, cellSize * xCells + 1, cellSize * yCells + 1);
+    context.clip();
+
     universe.forEach(function (cell) {
         drawRectangle(canvasProperties,
-        cell[0] * canvasProperties.cellSize, 
-        cell[1] * canvasProperties.cellSize,
-        canvasProperties.cellSize,
-        canvasProperties.cellSize,
+        cell[0] * gridProperties.cellSize + 1, 
+        cell[1] * gridProperties.cellSize + 1,
+        gridProperties.cellSize - 2,
+        gridProperties.cellSize - 2,
         color);
     });
+    context.restore();
 }
 
 // Random number function that generates a whole number between 0 and range
@@ -138,28 +178,22 @@ function randomNumber(range) {
     }
 }
 
-function drawClearUniverse(canvasProperties) {
+// Clear the canvas.
+function drawClearUniverse(canvasProperties, gridProperties) {
     "use strict";
     // Why is canvas.style.backgroundColor = 'black'?
-    for (var x = 0; x < (canvasProperties.xCells); x++) {
-        for (var y = 0; y < (canvasProperties.yCells); y++) {
-            drawRectangle(canvasProperties, 
-            x * canvasProperties.cellSize, 
-            y * canvasProperties.cellSize, 
-            canvasProperties.cellSize, 
-            canvasProperties.cellSize, 'white');
-        }
-    }
+    var context = canvasProperties.canvas.getContext("2d");
+    context.clearRect(0, 0, canvasProperties.width, canvasProperties.height);
+    drawGridCanvas('black', canvasProperties, gridProperties);
 }
 
 function buttonStartClick() {
     "use strict";
     
     stop = false;
-    drawClearUniverse(canvasProperties);
-    universe = createUniverse(canvasProperties); 
-    drawUniverse(universe, 'green');
-    // interval = setInterval(playGame, 200);
+    drawClearUniverse(canvasProperties, gridProperties);
+    universe = createUniverse(gridProperties); 
+    drawUniverse(universe, canvasProperties, gridProperties, 'green');
     setTimeout(playGame, 200);
 }
 
@@ -169,28 +203,27 @@ function buttonStopClick() {
 }
 
 function canvasWheel(wheelEvent) {
-    console.log("Canvas width: " + canvasProperties.width);
     if (wheelEvent.deltaY < 0) {        
-        canvasProperties = resizeCanvas(canvasProperties.canvas, canvasProperties.cellSize + 1);
+        gridProperties = resizeCanvasByCellSize(canvasProperties.canvas, gridProperties.cellSize + 1);
     }
     else if (wheelEvent.deltaY > 0) {
-        canvasProperties = resizeCanvas(canvasProperties.canvas, canvasProperties.cellSize - 1);
+        gridProperties = resizeCanvasByCellSize(canvasProperties.canvas, gridProperties.cellSize - 1);
     }
-    console.log("Canvas width: " + canvasProperties.width);
-    drawGridCanvas('white', canvasProperties);
-    drawGridCanvas('black', canvasProperties);
+    
+    drawClearUniverse(canvasProperties, gridProperties);
+    drawGridCanvas('black', canvasProperties, gridProperties);
 }
 
-function createUniverse(canvasProperties) {
+function createUniverse(gridProperties) {
     "use strict";
-    var totalCellCount = canvasProperties.yCells * canvasProperties.xCells;
+    var totalCellCount = gridProperties.yCells * gridProperties.xCells;
     var oneTenth = Math.floor(totalCellCount / 10);
 
     var cells = [];
 
     for (var i = 0; i < oneTenth; i++) {
-        var rx = randomNumber(canvasProperties.xCells - 1);
-        var ry = randomNumber(canvasProperties.yCells -1);
+        var rx = randomNumber(gridProperties.xCells - 1);
+        var ry = randomNumber(gridProperties.yCells -1);
         cells[i] = [rx, ry];
     }
 
@@ -222,7 +255,6 @@ function addToArrayIfNotAlreadyThere(cellArray, cell) {
     "use strict";
     if (!cellExists(cellArray, cell))
     {
-        //console.log("Adding a cell to an array.");
         cellArray[cellArray.length] = cell;
     }
 }
@@ -230,19 +262,14 @@ function addToArrayIfNotAlreadyThere(cellArray, cell) {
 function getNeighbors(universe, cell, neighborPredicate) {
     "use strict";
     var neighbors = [];
-    //console.log("getNeighbors universe length: " + universe.length);
+    
     neighborOffsets.forEach(function (neighborOffset) {
         var neighborCell = [cell[0] + neighborOffset[0], cell[1] + neighborOffset[1]];
-        //console.log(neighborCell);
         if (neighborPredicate(universe, neighborCell)) {
-            //console.log("Neighbor predicate was true.");
             addToArrayIfNotAlreadyThere(neighbors, neighborCell);
         }
-        else {
-            //console.log("Neighbor predicate was false.");
-        }
     });
-    //console.log("Neighbor count: " + neighbors.length);
+
     return neighbors;
 }
 
@@ -266,7 +293,6 @@ function doNextGeneration(universe) {
 
     universe.forEach(function (cell) {
         var liveNeighborCount = getLiveNeighbors(universe, cell).length;
-        //console.log("Live neighbor count: " + liveNeighborCount);
         // GoL Rule 1
         if (liveNeighborCount < 2 || liveNeighborCount > 3) {
             addToArrayIfNotAlreadyThere(deadCells, cell);
@@ -277,7 +303,6 @@ function doNextGeneration(universe) {
         }
 
         var deadNeighbors = getDeadNeighbors(universe, cell);
-        //console.log("Dead neighbors count: " + deadNeighbors.length);
         deadNeighbors.forEach(function (deadNeighbor) {
             // GoL Rule 3
             if (getLiveNeighbors(universe, deadNeighbor).length === 3) {                
@@ -285,9 +310,6 @@ function doNextGeneration(universe) {
             }
         });
     });
-    //console.log("Dead cells: " + deadCells.length);
-    //console.log("Live cells: " + liveCells.length);
-    //console.log("Universe cells: " + universe.length);
     return liveCells;
 }
 
@@ -311,8 +333,8 @@ function playGame() {
     var universeLength = universe.length;
     universe = doNextGeneration(universe);
     setTotalCellCountColor(universeLength, universe.length);
-    drawClearUniverse(canvasProperties)
-    drawUniverse(universe, 'green');
+    drawClearUniverse(canvasProperties, gridProperties)
+    drawUniverse(universe, canvasProperties, gridProperties, 'green');
     var totalcells = document.getElementById("totalcells");
     totalcells.textContent  = universe.length;
     if (!stop) {
