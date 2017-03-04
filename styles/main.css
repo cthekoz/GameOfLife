@@ -55,6 +55,7 @@ button {
     float: right;
     overflow: visible;
     position: relative;
+    margin-right: 0;
     z-index: 2;
 }
 

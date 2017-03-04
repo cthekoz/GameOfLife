@@ -13,15 +13,18 @@
                 <a href="https://en.wikipedia.org/wiki/Conway's_Game_of_Life">"The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway in 1970." -Wikipedia</a>
             </p>
         </h2>
-        <div class="startStopButtons">
-            <button class="myButton" type="button" onclick="buttonStartClick()">Start</button> 
-            <button class="myButton" type="button" onClick="buttonStopClick()">Stop</button>
-        </div> 
         <div class="outputOver">
             <span class="currentCellCount" name="totalcells" id="totalcells"></output>       
         </div>
-        <div>
-            <canvas id="mycanvas" onwheel="canvasWheel(event)"></canvas>        
+        <div class="wrapper" style="margin: 0 auto; position: relative;"> 
+            <div class="controls" style="position: absolute; top:0; left:0;">
+                <button class="myButton" type="button" onclick="buttonStartClick()">Start</button> 
+                </br>
+                <button class="myButton" type="button" onClick="buttonStopClick()">Stop</button>
+                </br>
+                <button class="myButton" type="button" onClick="buttonToggleGridClick()">Toggle Grid</button>   
+            </div>    
+            <canvas id="mycanvas" onwheel="canvasWheel(event)"></canvas>   
         </div>
     </body>
 </html>
