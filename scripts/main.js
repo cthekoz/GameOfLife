@@ -1,11 +1,14 @@
 /* I'm putting in a header comment to check out GitHub integration. */
 /* 3-3-2017 - added wheel zoom. */
 
+"use strict";
+
 var canvasProperties;
 var gridProperties;
 var universe = [];
 var stop = false;
 var clipSave;
+var grid = true;
 
 var neighborOffsets = [
     [-1, 0],
@@ -19,7 +22,7 @@ var neighborOffsets = [
 ];
 
 function canvasPropertiesPrint(canvasProperties) {
-    "use strict";
+    
     console.log("width: " + canvasProperties.width
                     + " " + "height: " + canvasProperties.height             
                     );
@@ -27,7 +30,7 @@ function canvasPropertiesPrint(canvasProperties) {
 
 /* Resizes the canvas as percentages of window width and height.*/
 function resizeCanvasByWindowSize() {
-    "use strict";
+    
     
     var canvas = document.getElementById("mycanvas");
     // Reducing size to make room for other elements, e.g., buttons. Not sure this is how it ought to be done.
@@ -46,20 +49,25 @@ function resizeCanvasByWindowSize() {
 
 /* Resizes the canvas by the cell size, assuming all cells are squares. */
 function resizeCanvasByCellSize(canvas, cellSize) {
-    "use strict";
+    
     
     var cellSize = cellSize;
     var cellCounts = getCellCounts(canvas, cellSize);
-    
+    var foreColor = 'black';
+    var backColor = 'white'
+
+
     return {
         xCells: cellCounts.xCells,
         yCells: cellCounts.yCells,
-        cellSize: cellSize
+        cellSize: cellSize,
+        foreColor: foreColor,
+        backColor: backColor
     }
 }
 
 function getCellCounts(canvas, cellSize) {
-    "use strict";
+    
 
     var xCells = Math.floor(canvas.width / cellSize);
     var yCells = Math.floor(canvas.height / cellSize);
@@ -71,21 +79,21 @@ function getCellCounts(canvas, cellSize) {
 }
 
 function onLoad() {
-    "use strict";
+    
     
     var canvas = document.getElementById("mycanvas");
     canvasProperties = resizeCanvasByWindowSize(canvas);
     var cellSize = 20;
     gridProperties = resizeCanvasByCellSize(canvas, cellSize);
-
-    drawGridCanvas('black', canvasProperties, gridProperties);
+    gridProperties.grid = true;
+    drawGridCanvas(canvasProperties, gridProperties);
     
     var totalcells = document.getElementById("totalcells");
     totalcells.textContent  = universe.length;
 }
 
 function onResize() {
-    "use strict";
+    
 
     canvasProperties = resizeCanvasByWindowSize();
 
@@ -94,24 +102,32 @@ function onResize() {
     var cellSize = gridProperties.cellSize;
     gridProperties = resizeCanvasByCellSize(canvas, cellSize);
 
-    drawGridCanvas('black', canvasProperties, gridProperties);
+    drawGridCanvas(canvasProperties, gridProperties);
     
     var totalcells = document.getElementById("totalcells");
     totalcells.textContent  = universe.length;
 }
 
 function drawFillCanvas(canvas, color, canvasProperties) {
-    "use strict";
+    
     var context = canvasProperties.canvas.getContext("2d");
     context.rect(0, 0, canvas.width, canvas.height);
     context.fillStyle = color;
     context.fill();
 }
 
-function drawGridCanvas(color, canvasProperties, gridProperties) {
-    "use strict";
+function drawGridCanvas(canvasProperties, gridProperties) {
     
-    var context = canvasProperties.canvas.getContext("2d");
+    var color;
+
+    if (grid) {
+        color = gridProperties.foreColor;
+    }
+    else {
+        color = gridProperties.backColor;
+    }
+    
+    var context = canvasProperties.context;
     var cellSize = gridProperties.cellSize;
     var xCells = gridProperties.xCells;
     var yCells = gridProperties.yCells;
@@ -137,7 +153,7 @@ function drawGridCanvas(color, canvasProperties, gridProperties) {
 }
 
 function drawRectangle(canvasProperties, x, y, width, height, color) {
-    "use strict";
+    
     var context = canvasProperties.canvas.getContext("2d");
 
     context.beginPath();
@@ -147,7 +163,7 @@ function drawRectangle(canvasProperties, x, y, width, height, color) {
 }
 
 function drawUniverse(universe, canvasProperties, gridProperties, color) {
-    "use strict";    
+        
     
     var context = canvasProperties.canvas.getContext("2d");
     var cellSize = gridProperties.cellSize;
@@ -172,7 +188,7 @@ function drawUniverse(universe, canvasProperties, gridProperties, color) {
 
 // Random number function that generates a whole number between 0 and range
 function randomNumber(range) {
-    "use strict";
+    
     if (typeof range === "number") {
         return Math.round(Math.random() * range);
     }
@@ -180,15 +196,15 @@ function randomNumber(range) {
 
 // Clear the canvas.
 function drawClearUniverse(canvasProperties, gridProperties) {
-    "use strict";
+    
     // Why is canvas.style.backgroundColor = 'black'?
     var context = canvasProperties.canvas.getContext("2d");
     context.clearRect(0, 0, canvasProperties.width, canvasProperties.height);
-    drawGridCanvas('black', canvasProperties, gridProperties);
+    drawGridCanvas(canvasProperties, gridProperties);
 }
 
 function buttonStartClick() {
-    "use strict";
+    
     
     stop = false;
     drawClearUniverse(canvasProperties, gridProperties);
@@ -198,8 +214,13 @@ function buttonStartClick() {
 }
 
 function buttonStopClick() {
-    "use strict";
+    
     stop = true;
+}
+
+function buttonToggleGridClick() {
+    grid = !grid;
+    drawGridCanvas(canvasProperties, gridProperties);
 }
 
 function canvasWheel(wheelEvent) {
@@ -211,11 +232,11 @@ function canvasWheel(wheelEvent) {
     }
     
     drawClearUniverse(canvasProperties, gridProperties);
-    drawGridCanvas('black', canvasProperties, gridProperties);
+    drawGridCanvas(canvasProperties, gridProperties);
 }
 
 function createUniverse(gridProperties) {
-    "use strict";
+    
     var totalCellCount = gridProperties.yCells * gridProperties.xCells;
     var oneTenth = Math.floor(totalCellCount / 10);
 
@@ -252,7 +273,7 @@ function cellExistsNot(cellArray, cell)
 }
 
 function addToArrayIfNotAlreadyThere(cellArray, cell) {
-    "use strict";
+    
     if (!cellExists(cellArray, cell))
     {
         cellArray[cellArray.length] = cell;
@@ -260,7 +281,7 @@ function addToArrayIfNotAlreadyThere(cellArray, cell) {
 }
 
 function getNeighbors(universe, cell, neighborPredicate) {
-    "use strict";
+    
     var neighbors = [];
     
     neighborOffsets.forEach(function (neighborOffset) {
@@ -274,19 +295,19 @@ function getNeighbors(universe, cell, neighborPredicate) {
 }
 
 function getLiveNeighbors(universe, cell) {
-    "use strict";
+    
     var liveNeighbors = getNeighbors(universe, cell, cellExists);
     return liveNeighbors;
 }
 
 function getDeadNeighbors(universe, cell) {
-    "use strict";
+    
     var deadNeighbors = getNeighbors(universe, cell, cellExistsNot);
     return deadNeighbors;
 }
 
 function doNextGeneration(universe) {
-    "use strict";
+    
 
     var deadCells = [];
     var liveCells = [];
@@ -329,7 +350,7 @@ function setTotalCellCountColor(previous, current)
 }
 
 function playGame() {
-    "use strict";
+    
     var universeLength = universe.length;
     universe = doNextGeneration(universe);
     setTotalCellCountColor(universeLength, universe.length);
