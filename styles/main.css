@@ -59,7 +59,20 @@ button {
     z-index: 2;
 }
 
+.originOver {
+    float: right;
+    overflow: visible;
+    position: relative;
+    margin-right: 0;
+    z-index: 3;
+}
+
 .currentCellCount {
+    font-family: "Comic Sans MS", cursive, sans-serif, bold;
+    font-size: 40px;
+    position: relative;
+}
+.currentOrigin {
     font-family: "Comic Sans MS", cursive, sans-serif, bold;
     font-size: 40px;
     position: relative;

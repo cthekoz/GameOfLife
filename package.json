@@ -1,0 +1,30 @@
+{
+  "name": "gameoflife",
+  "version": "1.0.0",
+  "description": "Starting to learn and use HTML, JS, CSS.",
+  "main": "index.js",
+  "dependencies": {
+    "rxjs-es": "^5.0.0-beta.12"
+  },
+  "devDependencies": {
+    "ts-loader": "^2.0.1",
+    "typescript": "^2.2.1",
+    "typings": "^2.1.0",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --watch --inline",
+    "postinstall": "typings install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cthekoz/GameOfLife.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cthekoz/GameOfLife/issues"
+  },
+  "homepage": "https://github.com/cthekoz/GameOfLife#readme"
+}
