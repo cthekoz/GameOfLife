@@ -18220,6 +18220,7 @@ function toSubscriber(nextOrObserver, error, complete) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var rxjs_es_1 = __webpack_require__(65);
+//import { Chart } from "chart.js";
 "use strict";
 var canvasProperties;
 var gridProperties;
@@ -18250,6 +18251,8 @@ function resizeCanvasByWindowSize() {
     canvas.height = Math.floor(window.innerHeight * .7); // 70% height
     canvas.width = Math.floor(window.innerWidth * .8); // 80% width
     var context = canvas.getContext("2d");
+    // var chartCanvas = <HTMLCanvasElement>document.getElementById("chartCanvas");
+    // chartCanvas.width = Math.floor(window.innerWidth * .05);
     return {
         canvas: canvas,
         context: context,
@@ -18259,10 +18262,14 @@ function resizeCanvasByWindowSize() {
 }
 /* Resizes the canvas by the cell size, assuming all cells are squares. */
 function resizeCanvasByCellSize(canvas, cellSize) {
-    var cellSize = cellSize;
-    var cellCounts = getCellCounts(canvas, cellSize);
-    var foreColor = 'black';
-    var backColor = 'white';
+    var maxSize = Math.min(cellSize, Math.min(canvas.width, canvas.height));
+    var minSize = 3; // 3 pixel - results in one pixel cell with one pixel border
+    if (cellSize <= maxSize && cellSize >= minSize) {
+        var cellSize = cellSize;
+        var cellCounts = getCellCounts(canvas, cellSize);
+        var foreColor = 'black';
+        var backColor = 'white';
+    }
     return {
         xCells: cellCounts.xCells,
         yCells: cellCounts.yCells,

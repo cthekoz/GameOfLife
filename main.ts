@@ -2,6 +2,7 @@
 /* 3-3-2017 - added wheel zoom. */
 
 import { Observable } from "rxjs-es";
+//import { Chart } from "chart.js";
 
 "use strict";
 
@@ -39,8 +40,10 @@ function resizeCanvasByWindowSize() {
     // Reducing size to make room for other elements, e.g., buttons. Not sure this is how it ought to be done.
     canvas.height = Math.floor(window.innerHeight * .7); // 70% height
     canvas.width = Math.floor(window.innerWidth * .8);  // 80% width
-
     var context = canvas.getContext("2d");
+
+    // var chartCanvas = <HTMLCanvasElement>document.getElementById("chartCanvas");
+    // chartCanvas.width = Math.floor(window.innerWidth * .05);
 
     return {
         canvas: canvas,
@@ -52,11 +55,15 @@ function resizeCanvasByWindowSize() {
 
 /* Resizes the canvas by the cell size, assuming all cells are squares. */
 function resizeCanvasByCellSize(canvas, cellSize) {
+    let maxSize = Math.min(cellSize, Math.min(canvas.width, canvas.height));
+    let minSize = 3; // 3 pixel - results in one pixel cell with one pixel border
 
-    var cellSize = cellSize;
-    var cellCounts = getCellCounts(canvas, cellSize);
-    var foreColor = 'black';
-    var backColor = 'white';
+    if (cellSize <= maxSize && cellSize >= minSize) {        
+        var cellSize = cellSize;
+        var cellCounts = getCellCounts(canvas, cellSize);
+        var foreColor = 'black';
+        var backColor = 'white';
+    }
 
     return {
         xCells: cellCounts.xCells,
