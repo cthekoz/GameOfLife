@@ -185,6 +185,15 @@ function buttonStopClick() {
 
 function buttonPauseClick() {
     pause = !pause;
+    
+    var buttonPause = <HTMLButtonElement>document.getElementById("pauseButton");
+    
+    if (pause) {
+        buttonPause.textContent = "Resume";
+    }
+    else {
+        buttonPause.textContent = "Pause";
+    }
 
     if (!pause) {
         playGame();
