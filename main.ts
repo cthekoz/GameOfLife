@@ -12,6 +12,7 @@ var stopRunning = false;
 var clipSave;
 var grid = true;
 var viewPort = [];
+let pause = false;
 
 var neighborOffsets = [
     [-1, 0],
@@ -95,6 +96,9 @@ window.onload = function onLoad() {
     var buttonStop = <HTMLButtonElement>document.getElementById("stopButton");
     buttonStop.onclick = buttonStopClick;
 
+    var buttonPause = <HTMLButtonElement>document.getElementById("pauseButton");
+    buttonPause.onclick = buttonPauseClick;
+
     var buttonToggleGrid = <HTMLButtonElement>document.getElementById("toggleGridButton");
     buttonToggleGrid.onclick = buttonToggleGridClick;
 
@@ -177,6 +181,14 @@ function buttonStartClick() {
 
 function buttonStopClick() {
     stopRunning = true;
+}
+
+function buttonPauseClick() {
+    pause = !pause;
+
+    if (!pause) {
+        playGame();
+    }
 }
 
 function buttonToggleGridClick() {
@@ -429,7 +441,7 @@ function playGame() {
     totalcells.textContent = universe.length.toString();
     var currentViewPort = document.getElementById("origin");
     currentViewPort.textContent = `${viewPort[0]}, ${viewPort[1]}`;
-    if (!stopRunning) {
+    if (!stopRunning && !pause) {
         setTimeout(playGame, 200);
     }
 }
